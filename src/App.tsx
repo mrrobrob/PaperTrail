@@ -8,18 +8,13 @@ const App = () => {
 
     const categories = Categories;
 
-    const [appId, setAppId] = useState("");
+    const appId = "ebec8b29-59be-4401-bdcd-58b5b20f0891";
     const [username, setUsername] = useState<string>();
     const [oneDriveAuthToken, setOneDriveAuthToken] = useState("");
     const [oneDriveAppFolderId, setOneDriveAppFolderId] = useState("");
     const [currentCategory, setCurrentCategory] = useState(categories[0].name);
     const [uploadName, setUploadName] = useState("");
 
-
-    const handleAppIdChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = evt.currentTarget;
-        setAppId(value);
-    }
 
     const handleCurrentCategoryChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
         const { value } = evt.currentTarget;
@@ -103,7 +98,6 @@ const App = () => {
     return <div className="App">
         {!username ?
             <>
-                <p><label>App Id: <input type="text" value={appId} onChange={handleAppIdChange} /></label></p>
                 <p><button onClick={handleLogin}>Log in</button></p>
             </>
             :
