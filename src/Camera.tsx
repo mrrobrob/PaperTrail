@@ -7,7 +7,16 @@ interface CameraProps {
 const Camera = (props: CameraProps) => {
 
     useEffect(() => {
-        navigator.mediaDevices.getUserMedia({ video: true })
+
+        navigator.mediaDevices
+            .enumerateDevices()
+            .then((devices) => {
+                devices.forEach((device) => {
+                    console.log(`${device.kind}: ${device.label} id = ${device.deviceId}`);
+                });
+            });
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
             .then(stream => {
                 const video = document.getElementsByTagName('video')[0];
                 video.srcObject = stream;
