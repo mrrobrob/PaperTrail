@@ -50,7 +50,7 @@ const App = () => {
             auth: {
                 clientId: appId,
                 authority: 'https://login.microsoftonline.com/consumers',
-                redirectUri: 'http://localhost:3000'
+                redirectUri: window.location.origin
             }
         };
 
