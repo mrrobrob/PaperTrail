@@ -40,11 +40,14 @@ const Camera = (props: CameraProps) => {
         video.play();
     }
 
-    return <p>
-        <video id="video" width="640" height="480" autoPlay></video>
-        <button onClick={handleTakePicture}>Take Picture</button>
-        <button onClick={handleUpload}>Upload</button>
-    </p>
+    return <div>
+        <video id="video" width="100%" autoPlay></video>
+        <p>
+
+            <button onClick={handleTakePicture}>Take Picture</button>
+            <button onClick={handleUpload}>Upload</button>
+        </p>
+    </div>
 }
 
 export default Camera;
