@@ -3,6 +3,7 @@ import './App.css';
 import * as msal from "@azure/msal-browser";
 import { Button, FormGroup } from "reactstrap";
 import PaperTrail from './PaperTrail';
+import { Header } from './Header';
 
 const App = () => {
 
@@ -54,6 +55,7 @@ const App = () => {
     }
 
     return <div className="App">
+        <Header />
         {!username ?
             <>
                 <FormGroup><Button onClick={handleLogin}>Log in</Button></FormGroup>
