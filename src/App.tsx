@@ -43,11 +43,11 @@ const App = () => {
 
             const authResult = await msalInstance.loginPopup(loginRequest);
             setUsername(authResult.account?.username);
-            console.log('Access token:', authResult.accessToken);
             setOneDriveAuthToken(authResult.accessToken);
+
             const appFolderId = await getAppFolderId(authResult.accessToken);
-            console.log('App folder ID:', appFolderId);
             setOneDriveAppFolderId(appFolderId);
+
         } catch (error) {
             console.error(error);
         }

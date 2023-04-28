@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, FormGroup, Input } from 'reactstrap';
+import { Alert, Button, FormGroup, Input, Toast, ToastBody } from 'reactstrap';
 import { Categories } from './categories/All';
 
 interface PaperTrailProps {
@@ -8,6 +8,8 @@ interface PaperTrailProps {
 }
 
 const PaperTrail = (props: PaperTrailProps) => {
+
+    const [uploadSuccess, setUploadSuccess] = useState(false);
 
     const categories = Categories;
 
@@ -39,72 +41,47 @@ const PaperTrail = (props: PaperTrailProps) => {
         if (!response.ok) {
             throw new Error(await response.text());
         }
+
         console.log('Photo saved to OneDrive');
         setUploadName("");
     }
-
-
-
-    useEffect(() => {
-
-        navigator.mediaDevices
-            .enumerateDevices()
-            .then((devices) => {
-                devices.forEach((device) => {
-                    console.log(`${device.kind}: ${device.label} id = ${device.deviceId}`);
-                });
-            });
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(stream => {
-                const video = document.getElementsByTagName('video')[0];
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(err => console.error('Error accessing user media:', err));
-    });
-
-    const handleTakePicture = () => {
-        const video = document.getElementsByTagName('video')[0];
-        video.pause();
-    }
-
+    
     const handleUpload = async () => {
-        const video = document.getElementsByTagName('video')[0];
 
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
+        const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+        if (fileInput.files && fileInput.files[0]) {
+            var reader = new FileReader();
 
-        if (!ctx) {
-            throw new Error("Could not get 2d context")
+            reader.onload = function (e) {
+                const result = e.target!.result as string;
+
+                if (result) {
+                    saveToOneDrive(result);
+                    setUploadSuccess(true);
+                }
+            }
+
+            reader.readAsDataURL(fileInput.files[0]);
         }
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL();
-
-        saveToOneDrive(dataUrl);
-
-        video.play();
     }
 
     return <div>
-        <video id="video" autoPlay></video>
-        <input type="file" accept="image/*;capture=camera" />
-        <FormGroup>
-            <Input type="text" value={uploadName} onChange={handleUploadNameChange} />
-        </FormGroup>
+        
         <FormGroup>
             <Input type="select" value={currentCategory} onChange={handleCurrentCategoryChange}>
                 {categories.map(category => <option key={category.name}>{category.name}</option>)}
             </Input>
         </FormGroup>
-        <p>
-
-            <Button onClick={handleTakePicture}>Take Picture</Button>
-            {" "}
+        <FormGroup>
+            <Input type="text" value={uploadName} onChange={handleUploadNameChange} />
+        </FormGroup>
+        <FormGroup>
+            <Input id="fileInput" type="file" accept="image/*;capture=camera" />
+        </FormGroup>
+        <FormGroup>
             <Button onClick={handleUpload}>Upload</Button>
-        </p>
+        </FormGroup>
+        {uploadSuccess && <Alert variant="success">File uploaded</Alert>}
 
     </div>
 }
