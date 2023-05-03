@@ -10,6 +10,7 @@ export interface ITask {
 
 export interface ICategory {
     name: string,
+    filename: string,
     parameters: IParameter[],
     tasks: ITask[]
 }

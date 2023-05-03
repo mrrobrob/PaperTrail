@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Alert, Button, FormGroup, Input } from 'reactstrap';
+import { OneDrive } from './api/OneDrive';
 import { Categories } from './categories/All';
 
 interface PaperTrailProps {
-    oneDriveAppFolderId: string;
-    oneDriveAuthToken: string;
+    oneDrive: OneDrive;
 }
 
 const PaperTrail = (props: PaperTrailProps) => {
@@ -13,67 +13,47 @@ const PaperTrail = (props: PaperTrailProps) => {
 
     const categories = Categories;
 
-    const [currentCategory, setCurrentCategory] = useState(categories[0].name);
-    const [uploadName, setUploadName] = useState("");
+    const [currentCategory, setCurrentCategory] = useState(categories[0]);
 
     const handleCurrentCategoryChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = evt.currentTarget;
-        setCurrentCategory(value);
+        setCurrentCategory(categories.find(e=>e.name === value)!);
     }
 
-    const handleUploadNameChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = evt.currentTarget;
-        setUploadName(value);
+    const handleParameterChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = evt.currentTarget;
+
+        console.log(`set ${name} to ${value}`)
+
+        setCurrentCategory({
+            ...currentCategory,
+            parameters: [...currentCategory.parameters.map(e => e.name === name ? {...e, value: value} : e)]
+        })
     }
 
-    const saveToOneDrive = async (dataUrl: string) => {
-        const date = new Date();
-        const dateString = `${date.toISOString().substring(0, 10)}-${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
-        const filename = `${dateString}-${uploadName}.jpg`;
-        const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${props.oneDriveAppFolderId}:/archive/${currentCategory}/${filename}:/content`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${props.oneDriveAuthToken}`,
-                'Content-Type': 'text/plain'
-            },
-            body: await fetch(dataUrl).then(response => response.blob())
-        });
-        if (!response.ok) {
-            throw new Error(await response.text());
-        }
-
-        console.log('Photo saved to OneDrive');
-        setUploadName("");
-    }
-    
     const handleUpload = async () => {
 
         const fileInput = document.getElementById("fileInput") as HTMLInputElement;
         if (fileInput.files && fileInput.files[0]) {
-            var reader = new FileReader();
 
-            reader.onload = function (e) {
-                const result = e.target!.result as string;
+            await props.oneDrive.uploadFile(fileInput.files[0], currentCategory);
+            
+            setUploadSuccess(true);
 
-                if (result) {
-                    saveToOneDrive(result);
-                    setUploadSuccess(true);
-                }
-            }
-
-            reader.readAsDataURL(fileInput.files[0]);
         }
     }
 
     return <div>
-        
+
         <FormGroup>
-            <Input type="select" value={currentCategory} onChange={handleCurrentCategoryChange}>
+            <Input type="select" value={currentCategory.name} onChange={handleCurrentCategoryChange}>
                 {categories.map(category => <option key={category.name}>{category.name}</option>)}
             </Input>
         </FormGroup>
         <FormGroup>
-            <Input type="text" value={uploadName} onChange={handleUploadNameChange} />
+            {currentCategory.parameters.map(param =>
+                <Input type="text" key={param.name} name={param.name} value={param.value} onChange={handleParameterChange} />
+            )}
         </FormGroup>
         <FormGroup>
             <Input id="fileInput" type="file" accept="image/*;capture=camera" />
